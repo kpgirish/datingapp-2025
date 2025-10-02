@@ -1,5 +1,11 @@
+using System.Text;
 using API.Data;
+using API.Interfaces;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +25,20 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod();
     });
 });
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(Options =>
+    {
+        var tokenKey = builder.Configuration["TokenKey"] ?? throw new Exception("Unable to get Token key -- program.cs");
+        Options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+;
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
@@ -31,6 +51,9 @@ app.UseRouting();
 app.UseCors("AllowLocalAngular");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
