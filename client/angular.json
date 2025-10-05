@@ -4,9 +4,18 @@
   "newProjectRoot": "projects",
   "projects": {
     "client": {
-      "projectType": "application",
-      "schematics": {},
       "root": "",
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "skipTests": true,
+          "path": "src"
+        },
+        "@schematics/angular:service": {
+          "skipTests": true,
+          "path": "src/core/services"
+        }
+      },
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
